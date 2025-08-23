@@ -1,7 +1,7 @@
 # sltrun
 
 **sltrun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
-Permite passar múltiplos argumentos, suporta a flag interna `-dc` e mantém o processo rodando mesmo após fechar o terminal.
+Permite passar múltiplos argumentos, suporta flags internas como `-e` e `-dc` e mantém o processo rodando mesmo após fechar o terminal.
 
 > ⚠️ Projeto em desenvolvimento – funcionalidades e interface podem mudar.
 
@@ -18,29 +18,35 @@ cd sltrun
 
 2. Torne o script executável:
 
-```bash
+```
 chmod +x bin/sltrun
 ```
 
 3. Opcional: mova para uma pasta no PATH para usar globalmente:
 
-```bash
+```
 sudo cp bin/sltrun /usr/local/bin/sltrun
+```
+
+4. Alternativa (para Fish Shell): adicione a pasta `bin` ao PATH permanentemente
+
+```
+set -U fish_user_paths $PWD/bin $fish_user_paths
 ```
 
 ---
 
 ## Uso
 
-```bash
+```
 # Rodar um comando em background
 sltrun firefox
 
-# Rodar um comando com a flag -dc
-sltrun -dc nmap -sV 127.0.0.1
+# Rodar um comando que finaliza o terminal após execução (flag -e)
+sltrun -e htop
 ```
-
-- `-dc` é uma flag interna que faz com que o terminal não feche após rodar o comando em segundo plano.  
+ 
+- `-e` é uma flag interna que encerra o terminal após executar o comando associado.  
 - Todos os argumentos após `sltrun` são passados diretamente para o comando a ser executado.  
 
 ---
@@ -48,6 +54,34 @@ sltrun -dc nmap -sV 127.0.0.1
 ## Logs
 
 - Por padrão, a saída do comando em background é salva em `~/sltrun_logs.log`.  
+- Tanto stdout quanto stderr são registrados:
+
+```
+nohup <comando> >> ~/sltrun_logs.log 2>&1 &
+```
+
+- Você pode visualizar o log a qualquer momento:
+
+```
+cat ~/sltrun_logs.log
+```
+
+---
+
+## Estrutura do Projeto
+
+- `bin/sltrun`: script executável principal que chama as funções do `src/sltrun.fish`.  
+- `src/sltrun.fish`: contém funções como:
+  - `silentRun`: executa comandos em background separando flags internas e argumentos.
+  - `getFlags`: retorna a lista de flags internas disponíveis.
+  - `getCmdLine`: mapeia cada flag para sua ação correspondente.
+  - `log`: registra mensagens no arquivo de log com timestamp.
+
+- As flags internas estão configuradas em `set flagActions`, por exemplo:
+
+```
+set flagActions "-e:exit"
+```
 
 ---
 
@@ -55,4 +89,3 @@ sltrun -dc nmap -sV 127.0.0.1
 
 Contribuições, ideias e correções são bem-vindas!  
 Como o projeto está em desenvolvimento, algumas funcionalidades podem mudar.
-
