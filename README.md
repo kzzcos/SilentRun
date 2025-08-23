@@ -1,58 +1,129 @@
 # sltrun
 
-**sltrun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
-Permite passar múltiplos argumentos, suporta a flag interna `-dc` e mantém o processo rodando mesmo após fechar o terminal.
+`sltrun` é uma ferramenta em **Fish Shell** para rodar comandos em segundo plano de forma controlada, com suporte a flags customizadas e logging.  
 
-> ⚠️ Projeto em desenvolvimento – funcionalidades e interface podem mudar.
+O projeto possui a seguinte estrutura:
+
+``` 
+sltrun/
+├─ bin/
+│   └─ sltrun          # Script executável principal
+└─ src/
+    └─ sltrun.fish     # Funções principais e lógica do silentRun
+```
 
 ---
 
-## Instalação
+## Funcionalidades
 
-1. Clone o repositório:
+- **Execução de comandos em segundo plano** (`nohup`) com logs.  
+- **Flags personalizadas** que executam ações adicionais (por exemplo, `-e` para `exit`).  
+- **Logging detalhado** em `~/sltrun_logs.log` com timestamp.  
+- Separação clara entre argumentos que são **comandos** e argumentos que são **flags da ferramenta**.
+
+---
+
+## Arquivos principais
+
+### bin/sltrun
+
+- Script executável que chama as funções do `src/sltrun.fish`.  
+- Passa os argumentos da linha de comando para `silentRun`.
+
+Exemplo de uso:
 
 ```
-git clone https://github.com/kzzcos/sltrun.git
-cd sltrun
+sltrun nmap 127.0.0.1 -e
 ```
 
-2. Torne o script executável:
+---
 
-```bash
+### src/sltrun.fish
+
+Contém todas as funções essenciais:
+
+#### 1. `set flagActions`
+
+```
+set flagActions "-e:exit"
+```
+
+- Lista de flags suportadas, no formato `<flag>:<comando>`.  
+- Você pode adicionar novas flags seguindo esse padrão:
+
+```
+set flagActions "-e:exit" "-d:echo 'Debug mode'"
+```
+
+---
+
+#### 2. Funções
+
+##### `getCmdLine $argv`
+
+- Recebe uma lista de flags.  
+- Retorna os comandos associados a essas flags.  
+
+##### `getFlags`
+
+- Retorna apenas as flags cadastradas (`-e`, `-d`, etc.)  
+
+##### `log $msg`
+
+- Adiciona uma mensagem ao arquivo de log `~/sltrun_logs.log` com timestamp:
+
+```
+log "Erro ao executar comando"
+```
+
+##### `silentRun $argv`
+
+- Função principal.  
+- Separa **flags** (`sltArgs`) e **comandos** (`cmdArgs`).  
+- Executa os comandos em segundo plano via `nohup`.  
+- Avalia as flags adicionais usando `eval`.  
+- Realiza logging automático.
+
+---
+
+## Execução
+
+1. Torne o script executável:
+
+```
 chmod +x bin/sltrun
 ```
 
-3. Opcional: mova para uma pasta no PATH para usar globalmente:
+2. Coloque o script no PATH do sistema para poder executar apenas `sltrun`:
 
-```bash
+### Opção A: Copiar para `/usr/local/bin`
+
+```
 sudo cp bin/sltrun /usr/local/bin/sltrun
 ```
 
----
+### Opção B: Adicionar a pasta `bin` do projeto ao PATH (permanente para Fish)
 
-## Uso
-
-```bash
-# Rodar um comando em background
-sltrun firefox
-
-# Rodar um comando com a flag -dc
-sltrun -dc nmap -sV 127.0.0.1
+```
+set -U fish_user_paths $PWD/bin $fish_user_paths
 ```
 
-- `-dc` é uma flag interna que faz com que o terminal não feche após rodar o comando em segundo plano.  
-- Todos os argumentos após `sltrun` são passados diretamente para o comando a ser executado.  
+- Agora você pode rodar o comando diretamente de qualquer pasta:
 
----
+```
+sltrun nmap 127.0.0.1 -e
+```
 
-## Logs
+3. Para usar flags da ferramenta:
 
-- Por padrão, a saída do comando em background é salva em `~/sltrun_logs.log`.  
+```
+sltrun nmap 127.0.0.1 -e
+```
 
----
+- Nesse exemplo, `-e` executa o comando associado (`exit`).  
 
-## Contribuição
+4. Verifique logs:
 
-Contribuições, ideias e correções são bem-vindas!  
-Como o projeto está em desenvolvimento, algumas funcionalidades podem mudar.
-
+```
+cat ~/sltrun_logs.log
+```
