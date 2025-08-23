@@ -59,7 +59,7 @@ function silentRun
             echo "  sltrun -e nmap -sV 127.0.0.1  # Roda nmap em segundo plano e fecha o terminal"
             echo ""
 
-        if else contains -- $arg $flags
+        else if contains -- $arg $flags
             set sltArgs $sltArgs $arg
         else
             set cmdArgs $cmdArgs $arg
