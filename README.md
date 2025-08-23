@@ -1,129 +1,91 @@
 # sltrun
 
-`sltrun` é uma ferramenta em **Fish Shell** para rodar comandos em segundo plano de forma controlada, com suporte a flags customizadas e logging.  
+**sltrun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
+Permite passar múltiplos argumentos, suporta flags internas como `-e` e `-dc` e mantém o processo rodando mesmo após fechar o terminal.
 
-O projeto possui a seguinte estrutura:
-
-``` 
-sltrun/
-├─ bin/
-│   └─ sltrun          # Script executável principal
-└─ src/
-    └─ sltrun.fish     # Funções principais e lógica do silentRun
-```
+> ⚠️ Projeto em desenvolvimento – funcionalidades e interface podem mudar.
 
 ---
 
-## Funcionalidades
+## Instalação
 
-- **Execução de comandos em segundo plano** (`nohup`) com logs.  
-- **Flags personalizadas** que executam ações adicionais (por exemplo, `-e` para `exit`).  
-- **Logging detalhado** em `~/sltrun_logs.log` com timestamp.  
-- Separação clara entre argumentos que são **comandos** e argumentos que são **flags da ferramenta**.
-
----
-
-## Arquivos principais
-
-### bin/sltrun
-
-- Script executável que chama as funções do `src/sltrun.fish`.  
-- Passa os argumentos da linha de comando para `silentRun`.
-
-Exemplo de uso:
+1. Clone o repositório:
 
 ```
-sltrun nmap 127.0.0.1 -e
+git clone https://github.com/kzzcos/sltrun.git
+cd sltrun
 ```
 
----
-
-### src/sltrun.fish
-
-Contém todas as funções essenciais:
-
-#### 1. `set flagActions`
-
-```
-set flagActions "-e:exit"
-```
-
-- Lista de flags suportadas, no formato `<flag>:<comando>`.  
-- Você pode adicionar novas flags seguindo esse padrão:
-
-```
-set flagActions "-e:exit" "-d:echo 'Debug mode'"
-```
-
----
-
-#### 2. Funções
-
-##### `getCmdLine $argv`
-
-- Recebe uma lista de flags.  
-- Retorna os comandos associados a essas flags.  
-
-##### `getFlags`
-
-- Retorna apenas as flags cadastradas (`-e`, `-d`, etc.)  
-
-##### `log $msg`
-
-- Adiciona uma mensagem ao arquivo de log `~/sltrun_logs.log` com timestamp:
-
-```
-log "Erro ao executar comando"
-```
-
-##### `silentRun $argv`
-
-- Função principal.  
-- Separa **flags** (`sltArgs`) e **comandos** (`cmdArgs`).  
-- Executa os comandos em segundo plano via `nohup`.  
-- Avalia as flags adicionais usando `eval`.  
-- Realiza logging automático.
-
----
-
-## Execução
-
-1. Torne o script executável:
+2. Torne o script executável:
 
 ```
 chmod +x bin/sltrun
 ```
 
-2. Coloque o script no PATH do sistema para poder executar apenas `sltrun`:
-
-### Opção A: Copiar para `/usr/local/bin`
+3. Opcional: mova para uma pasta no PATH para usar globalmente:
 
 ```
 sudo cp bin/sltrun /usr/local/bin/sltrun
 ```
 
-### Opção B: Adicionar a pasta `bin` do projeto ao PATH (permanente para Fish)
+4. Alternativa (para Fish Shell): adicione a pasta `bin` ao PATH permanentemente
 
 ```
 set -U fish_user_paths $PWD/bin $fish_user_paths
 ```
 
-- Agora você pode rodar o comando diretamente de qualquer pasta:
+---
+
+## Uso
 
 ```
-sltrun nmap 127.0.0.1 -e
+# Rodar um comando em background
+sltrun firefox
+
+# Rodar um comando que finaliza o terminal após execução (flag -e)
+sltrun -e htop
+```
+ 
+- `-e` é uma flag interna que encerra o terminal após executar o comando associado.  
+- Todos os argumentos após `sltrun` são passados diretamente para o comando a ser executado.  
+
+---
+
+## Logs
+
+- Por padrão, a saída do comando em background é salva em `~/sltrun_logs.log`.  
+- Tanto stdout quanto stderr são registrados:
+
+```
+nohup <comando> >> ~/sltrun_logs.log 2>&1 &
 ```
 
-3. Para usar flags da ferramenta:
-
-```
-sltrun nmap 127.0.0.1 -e
-```
-
-- Nesse exemplo, `-e` executa o comando associado (`exit`).  
-
-4. Verifique logs:
+- Você pode visualizar o log a qualquer momento:
 
 ```
 cat ~/sltrun_logs.log
 ```
+
+---
+
+## Estrutura do Projeto
+
+- `bin/sltrun`: script executável principal que chama as funções do `src/sltrun.fish`.  
+- `src/sltrun.fish`: contém funções como:
+  - `silentRun`: executa comandos em background separando flags internas e argumentos.
+  - `getFlags`: retorna a lista de flags internas disponíveis.
+  - `getCmdLine`: mapeia cada flag para sua ação correspondente.
+  - `log`: registra mensagens no arquivo de log com timestamp.
+
+- As flags internas estão configuradas em `set flagActions`, por exemplo:
+
+```
+set flagActions "-e:exit"
+```
+
+---
+
+## Contribuição
+
+Contribuições, ideias e correções são bem-vindas!  
+Como o projeto está em desenvolvimento, algumas funcionalidades podem mudar.

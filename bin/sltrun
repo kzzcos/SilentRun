@@ -1,2 +1,8 @@
 #!/usr/bin/env fish
 
+set SCRIPT_DIR (dirname (status -f))
+set SRC_FILE "$SCRIPT_DIR/../src/sltrun.fish"
+
+source $SRC_FILE
+
+silentRun $argv
