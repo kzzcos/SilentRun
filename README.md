@@ -1,6 +1,6 @@
-# sltrun
+# SilentRun
 
-**sltrun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
+**SilentRun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
 Permite passar múltiplos argumentos, suporta flags internas como `-e` e `-dc` e mantém o processo rodando mesmo após fechar o terminal.
 
 > ⚠️ Projeto em desenvolvimento – funcionalidades e interface podem mudar.
@@ -12,8 +12,8 @@ Permite passar múltiplos argumentos, suporta flags internas como `-e` e `-dc` e
 1. Clone o repositório:
 
 ```
-git clone https://github.com/kzzcos/sltrun.git
-cd sltrun
+git clone https://github.com/kzzcos/SilentRun.git
+cd SilentRun
 ```
 
 2. Torne o script executável:
