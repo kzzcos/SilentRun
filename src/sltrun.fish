@@ -45,7 +45,21 @@ function silentRun
     end
 
     for arg in $argv
-        if contains -- $arg $flags
+        
+        if test $arg = "--help"
+            echo ""
+            echo "Uso: sltrun [flags] <comando> [args...]"
+            echo ""
+            echo "Flags internas:"
+            echo "  -e       Fecha o terminal após executar o comando"
+            echo "  Por enquanto apenas este..."
+            echo ""
+            echo "Exemplos:"
+            echo "  sltrun firefox               # Roda firefox em segundo plano"
+            echo "  sltrun -e nmap -sV 127.0.0.1  # Roda nmap em segundo plano e fecha o terminal"
+            echo ""
+
+        if else contains -- $arg $flags
             set sltArgs $sltArgs $arg
         else
             set cmdArgs $cmdArgs $arg
