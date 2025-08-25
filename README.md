@@ -1,7 +1,6 @@
 # SilentRun
 
 **SilentRun** é uma ferramenta simples para rodar qualquer comando em segundo plano no Linux.  
-Permite passar múltiplos argumentos, suporta flags internas como `-e` e `-dc` e mantém o processo rodando mesmo após fechar o terminal.
 
 > ⚠️ Projeto em desenvolvimento – funcionalidades e interface podem mudar.
 
