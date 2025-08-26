@@ -1,13 +1,15 @@
-# A ordem aqui é importante! 
-set flagActions "-e:exit"
+set parent_pid (ps -o ppid= -p %self)
+
+# A ordem aqui é importante!
+set flagActions "-e:kill -9 $parent_pid"
 
 function getCmdLine
     set cmdLine
 
-    for flag in $flagActions
-        for arg in $argv
+    for arg in $argv
+        for flag in $flagActions
             if test $arg = (string split ":" -- $flag)[1]
-            set cmdLine $cmdLine (string split ":" -- $flag)[2]
+            set cmdLine $cmdLine $flagAction (string split ":" -- $flag)[2]
             end
         end
     end
@@ -23,29 +25,28 @@ function getFlags
         set flags $flags (string split ":" -- $flag)[1]
     end
 
-    echo $flags
+    echo -- $flags
 end
 
 function log
     set msg $argv
-    echo (date "+%d-%m-%Y %H:%M:%S") $msg >> ~/sltrun_logs.log
+    echo -- (date "+%d-%m-%Y %H:%M:%S") $msg >> ~/sltrun_logs.log
     return
 end
 
 function silentRun
-
     set flags (getFlags)
 
     set cmdArgs
     set sltArgs
 
-    if test (count $argv) -eq 0 
+    if test (count $argv) -eq 0
         echo "Use o argumento --help para obter ajuda!"
         return
     end
 
     for arg in $argv
-        
+
         if test $arg = "--help"
             echo ""
             echo "Uso: sltrun [flags] <comando> [args...]"
@@ -64,6 +65,7 @@ function silentRun
         else
             set cmdArgs $cmdArgs $arg
         end
+
     end
 
     if test (count $cmdArgs) -eq 0
@@ -73,7 +75,7 @@ function silentRun
     else if test (count $sltArgs) -eq 0
         #Comportamento padrão da ferramenta
         echo "Rodando $cmdArgs[1] em segundo plano..."
-        nohup $cmdArgs[1..-1] >> ~/sltrun_logs.log 2>&1 &
+        nohup $cmdArgs >> ~/sltrun_logs.log 2>&1 &
         disown
         return
 
@@ -83,8 +85,11 @@ function silentRun
         set cmdLine (getCmdLine $sltArgs)
 
         echo "Rodando $cmdArgs[1] em segundo plano..."
-        nohup $cmdArgs[1..-1] >> ~/sltrun_logs.log 2>&1 &
+        nohup $cmdArgs >> ~/sltrun_logs.log 2>&1 &
         disown
+        while not ps -p $last_pid > /dev/null 2>&1
+            sleep 0.1
+        end
         eval $cmdLine
         return
     end
