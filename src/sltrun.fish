@@ -1,5 +1,7 @@
+set parent_pid (ps -o ppid= -p %self)
+
 # A ordem aqui é importante!
-set flagActions "-e:exit"
+set flagActions "-e:kill -9 $parent_pid"
 
 function getCmdLine
     set cmdLine
@@ -7,8 +9,7 @@ function getCmdLine
     for arg in $argv
         for flag in $flagActions
             if test $arg = (string split ":" -- $flag)[1]
-            set flagAction (string split ":" -- $flag)[2]
-            set cmdLine $cmdLine $flagAction
+            set cmdLine $cmdLine $flagAction (string split ":" -- $flag)[2]
             end
         end
     end
@@ -24,17 +25,16 @@ function getFlags
         set flags $flags (string split ":" -- $flag)[1]
     end
 
-    echo $flags
+    echo -- $flags
 end
 
 function log
     set msg $argv
-    echo (date "+%d-%m-%Y %H:%M:%S") $msg >> ~/sltrun_logs.log
+    echo -- (date "+%d-%m-%Y %H:%M:%S") $msg >> ~/sltrun_logs.log
     return
 end
 
 function silentRun
-
     set flags (getFlags)
 
     set cmdArgs
