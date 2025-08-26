@@ -79,7 +79,7 @@ cat ~/sltrun_logs.log
 - As flags internas estão configuradas em `set flagActions`, por exemplo:
 
 ```
-set flagActions "-e:exit"
+set flagActions "-e:kill -9 $parent_pid"
 ```
 
 ---
