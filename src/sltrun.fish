@@ -12,7 +12,7 @@ function getCmdLine
         for flag in $flagActions
             set flagProperties (string split ":" -- $flag)
             if test $arg = $flagProperties[1]
-                if test -- $flagProperties[3] = "-1"
+                if test $flagProperties[3] = "-1"
                     set cmdLine $cmdLine ":" (string split ":" -- $flag)[2]
                 else
                     set (string split ":" -- $flag)[2] ":" cmdLine $cmdLine
@@ -117,4 +117,4 @@ end
 # É a primeira vez que uso fish...
 
 # Sorry for my skillless code! 
-# I don't have such knowledge on fish...
+# I don't have much knowledge on fish...
