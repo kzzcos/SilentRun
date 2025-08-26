@@ -1,19 +1,32 @@
 set parent_pid (ps -o ppid= -p %self)
-
-# A ordem aqui é importante!
-set flagActions "-e:kill -9 $parent_pid"
+set flagActions "-e:kill -9 $parent_pid:-1"
+# Formato: <flag> : <comando> : <prioridade>
+# Format: <flag> : <command> : <priority>
+# -1: prioridade minima - minimum priority
+# 0: prioridade máxima - maximum priority
 
 function getCmdLine
     set cmdLine
 
     for arg in $argv
         for flag in $flagActions
-            if test $arg = (string split ":" -- $flag)[1]
-            set cmdLine $cmdLine ":" (string split ":" -- $flag)[2]
+            set flagProperties (string split ":" -- $flag)
+            if test $arg = $flagProperties[1]
+                if test $flagProperties[3] = "-1"
+                    set cmdLine $cmdLine ":" (string split ":" -- $flag)[2]
+                else
+                    set (string split ":" -- $flag)[2] ":" cmdLine $cmdLine
+                end
+
+                # Essa parte armazena as propriedades da flag
+                # e checa a posição dela com base na prioridade
+
+                # This part store the flag properties and 
+                # check the position based on priority
+
             end
         end
     end
-
     echo $cmdLine
     return
 end
@@ -73,15 +86,18 @@ function silentRun
         return
 
     else if test (count $sltArgs) -eq 0
-        #Comportamento padrão da ferramenta
+
+        # Comportamento padrão da ferramenta
+        # Tool default behavior
         echo "Rodando $cmdArgs[1] em segundo plano..."
         nohup $cmdArgs >> ~/sltrun_logs.log 2>&1 &
         disown
         return
 
     else
-        #Comportamento baseado em argumentação
 
+        # Comportamento baseado em argumentação
+        # Argument based behavior
         set cmdLine (getCmdLine $sltArgs)
 
         echo "Rodando $cmdArgs[1] em segundo plano..."
@@ -99,3 +115,6 @@ end
 
 # Peço perdão pelo meu código pobre!
 # É a primeira vez que uso fish...
+
+# Sorry for my skillless code! 
+# I don't have much knowledge on fish...
