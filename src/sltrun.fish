@@ -9,7 +9,7 @@ function getCmdLine
     for arg in $argv
         for flag in $flagActions
             if test $arg = (string split ":" -- $flag)[1]
-            set cmdLine $cmdLine $flagAction (string split ":" -- $flag)[2]
+            set cmdLine $cmdLine ":" (string split ":" -- $flag)[2]
             end
         end
     end
@@ -90,7 +90,9 @@ function silentRun
         while not ps -p $last_pid > /dev/null 2>&1
             sleep 0.1
         end
-        eval $cmdLine
+        for command in (string split ":" -- $cmdLine)
+            eval $command
+        end
         return
     end
 end
